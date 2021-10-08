@@ -66,13 +66,6 @@ ma3T = input(title="", defval="EMA", options=["SMA","EMA","WMA"], inline="3", gr
 src3 = input(title="", defval=close, inline="3", group="Moving Avarages")
 
 //-----[ MA 1 ]
-// ma1G = sma(src1,ma1)>sma(src1[1],ma1) and sma(src1,ma2)>sma(src1[1],ma2)
-// ma1R = sma(src1,ma1)<sma(src1[1],ma1) and sma(src1,ma2)<sma(src1[1],ma2)
-//ma1G = ema(src1,ma1)>ema(src1[1],ma1) and ema(src1,ma2)>ema(src1[1],ma2)
-//ma1R = ema(src1,ma1)<ema(src1[1],ma1) and ema(src1,ma2)<ema(src1[1],ma2)
-// ma1Color = ma1G?c_green:ma1R?c_red:not ma1G and not ma1R?c_yellow:na
-//plot(sma(src,ma1), color=color.new(ma1Color,0), style=plot.style_line, linewidth=1)
-
 plotType1 = ma1T == "EMA" ?
   ema(src1,ma1) :
   ma1T == "SMA" ?
