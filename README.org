@@ -1,0 +1,30 @@
+#+TITLE: 0x-PineScripts-n-Strategies
+#+AUTHOR: rxf4e1
+
+* INTRO
+Simple collection of scripts made by me for me.
+These are not for distribute, but if you fall into this repo, feel
+free to try it out. Don´t bother creating PR because i probably will
+not see or change it, unless i feel i want to.
+
+* Indicators
+** Moving-Avarages
+0x-MA shows three mostly used, at leat by me, moving avarages, and for
+the supersticious one, it follows Fibonacci progression.
+
+|-----+--------------|
+|  MA | COLOR        |
+|-----+--------------|
+|   9 | Blue         |
+|  55 | Trend Follow |
+| 233 | white        |
+|-----+--------------|
+
+** SuperTrend-StoRSI-VWAP
+ 0x-WaveTrend+Stoch[RSI]+vwap displays a lot of useful information for
+ the one who knows how to use it. That’s all for now, since i’m pretty
+ lazy to write it’s doc, will leave it for some other day.
+ 
+* TODO Strategies
+No strategies have been developed yet, actually i have only some
+studies that doesn’t worth uploading.

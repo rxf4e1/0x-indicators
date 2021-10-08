@@ -1,0 +1,119 @@
+//This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © rxf4e1-c21p70
+
+//@version=4
+study(title="0x-WaveTrend+Stoch[RSI]+VWAP",shorttitle="0xWT+",overlay=false)
+
+//COLORS PALETTE
+white_Co     = #FFFFFF
+green_Co     = #3FFF00
+red_Co       = #FF0000
+purple_Co    = #E600E6
+orange_Co    = #E2A400
+yellow_Co    = #FFE500
+pink_Co      = #FF00F0
+bluelight_Co = #31C0FF
+
+//INPUTS
+n1     = input(defval=10,title="Channel Length")
+n2     = input(defval=21,title="Avarage Length")
+obLvl1 = input(defval=60,title="Overbought Level 1")
+osLvl1 = input(defval=-60,title="Oversold Level 1")
+obLvl2 = input(defval=53,title="Overbought Level 2")
+osLvl2 = input(defval=-53,title="Oversold Level 2")
+obLvl3 = input(defval=100,title="WT Overbought Level 3",type=input.integer)
+osLvl3 = input(defval=-75,title="WT Oversold Level 3",type=input.integer)
+
+//RSI+MFI
+rsiMFIshow       = input(defval=true,title="Show MFI",type=input.bool)
+rsiMFIperiod     = input(defval=60,title="MFI Period",type=input.integer)
+rsiMFImultiplier = input(defval=150,title="MFI Area Multiplier",type=input.float)
+rsiMFIposY       = input(defval=2.5,title="MFI Area Y Pos",type=input.float)
+
+f_rsimfi(_p,_m,_tf) =>
+    security(syminfo.tickerid,_tf,sma(((close-open)/(high-low))*_m,_p)-rsiMFIposY)
+
+rsiMFI   = f_rsimfi(rsiMFIperiod,rsiMFImultiplier,timeframe.period)
+rsiMFIcolor = rsiMFI > 0 ? color.new(#3EE145,20) : color.new(#FF3D2E,20)
+
+//RSI
+rsiShow       = input(defval=false,title="Show RSI",type=input.bool)
+rsiSRC        = input(defval=close,title="RSI Source",type=input.source)
+rsiLEN        = input(defval=14,title="RSI Length",type=input.integer)
+rsiOversold   = input(defval=30,title="RSI Oversold",minval=50,maxval=100,type=input.integer)
+rsiOverbought = input(defval=60,title="RSI Overbought",minval=0,maxval=50,type=input.integer)
+
+rsi      = rsi(rsiSRC,rsiLEN)
+rsiColor = rsi <= rsiOversold ? color.new(green_Co,25) : rsi >= rsiOverbought ? color.new(red_Co,25) : color.new(purple_Co,25)
+
+//STOCHASTIC+RSI
+stoShow    = input(defval=true,title="Show Stochastic RSI",type=input.bool)
+stoUseLog  = input(defval=true,title="Use Log?",type=input.bool)
+stoAVG     = input(defval=false,title="Avarage of both %k and %D",type=input.bool)
+stoSRC     = input(defval=close,title="Stochastic RSI Source",type=input.source)
+stoLEN     = input(defval=14,title="Stochastic RSI Length",type=input.integer)
+stoRSIlen  = input(defval=14,title="RSI Length",type=input.integer)
+stoKsmooth = input(defval=3,title="%K",type=input.integer)
+stoDsmooth = input(defval=3,title="%D",type=input.integer)
+
+f_stoRSI(_src,_stolen,_rsilen,_stok,_stod,_log,_avg)=>
+    src  = _log ? log(_src) : _src
+    rsi  = rsi(src,_rsilen)
+    kk   = sma(stoch(rsi,rsi,rsi,_stolen),_stok)
+    d1   = sma(kk,_stod)
+    avg1 = avg(kk,d1)
+    k    = _avg ? avg1 : kk
+    [k,d1]
+
+[stoK,stoD] = f_stoRSI(stoSRC,stoLEN,stoRSIlen,stoKsmooth,stoDsmooth,stoUseLog,stoAVG)
+
+//CALCULATIONS
+ap  = hlc3
+esa = ema(ap, n1)
+d   = ema(abs(ap-esa),n1)
+ci  = (ap-esa) / (0.015 * d)
+tci = ema(ci, n2)
+
+wt1     = tci
+wt2     = sma(wt1,4)
+wtCross = cross(wt1,wt2)
+
+//SIGNALS
+s_Co = wt2 - wt1 > 0 ? color.red : color.lime
+
+//PLOTTINGS
+////Lines
+plot(0,color=#808080)
+plot(obLvl1,color=#ff0000)
+plot(osLvl1,color=#008000)
+plot(obLvl2,color=#ff0000,style=3)
+plot(osLvl2,color=#008000,style=3)
+
+//Wave Trends
+plot(wt1,color=color.new(#1e90ff,40),style=plot.style_area)
+plot(wt2,color=color.new(#311b92,40),style=plot.style_area)
+
+//VWAP
+plot(wt1-wt2,title="VWAP",color=color.new(#ff0000,0),style=plot.style_area)
+
+//
+zline = plot(0,color=color.white)
+
+//MFI AREA
+rsiMFIplot = plot(rsiMFIshow ? rsiMFI : na,title="RSI+MFI Area",color=rsiMFIcolor)
+fill(rsiMFIplot,zline,rsiMFIcolor,transp=40)
+
+//RSI
+plot(rsiShow ? rsi : na,title="RSI",color=rsiColor,linewidth=2)
+
+//STOCHASTIC+RSI
+stoKplot  = plot(stoShow ? stoK : na,title="%K",color=color.new(#21baf3,0),linewidth=1)
+stoDplot  = plot(stoShow ? stoD : na,title="%D",color=color.new(#ff0000,0),linewidth=1)
+stoFillCo = stoK >= stoD ? color.new(#21baf3,75) : color.new(#ff0000,75)
+fill(stoKplot,stoDplot,title="%K %D Fill",color=stoFillCo)
+
+//Overbought line RSI
+plot(obLvl3,title="Overbought Level 3",color=color.new(#ffffff,0),linewidth=1,style=plot.style_circles)
+
+//Signals Circles
+plot(wtCross ? wt2 : na,title="Buy&Sell",color=color.new(s_Co,0),style=plot.style_circles,linewidth=4)
