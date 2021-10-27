@@ -1,122 +1,120 @@
 // This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
 // © rxf4e1-c21p70
 
-//@version=4
-study(title="0x-Moving Avarages",shorttitle="0xMA",overlay=true, format=format.price)
-// study(title="0x-Moving Avarages",shorttitle="0xMA",overlay=true, resolution="")
+//@version=5
+indicator(title='0x-Moving Avarages', shorttitle='0xMA', overlay=true, format=format.price)
 
 //----------------------------------------[COLORLIST]
 // 1 = light color, 2 = dark color
-c_black   = #000000
-c_white   = #FFFFFF
+c_black = #000000
+c_white = #FFFFFF
 
-c_gray    = #444444
-c_gray1   = #7C7C7C
-c_gray2   = #1B1B1B
+c_gray = #444444
+c_gray1 = #7C7C7C
+c_gray2 = #1B1B1B
 
-c_red     = #FF0000
-c_red1    = #FF6666
-c_red2    = #990000
+c_red = #FF0000
+c_red1 = #FF6666
+c_red2 = #990000
 
-c_green   = #00FF00
-c_green1  = #66FF66
-c_green2  = #007F00
+c_green = #00FF00
+c_green1 = #66FF66
+c_green2 = #007F00
 
-c_blue    = #0000FF
-c_blue1   = #6666FF
-c_blue2   = #000066
+c_blue = #0000FF
+c_blue1 = #6666FF
+c_blue2 = #000066
 
-c_yellow  = #FFFF00
+c_yellow = #FFFF00
 c_yellow1 = #FFFF66
 c_yellow2 = #999900
 
-c_pink    = #FF00FF
-c_orange  = #FF8000
-c_lblue   = #00FF80
-c_mint    = #0040FF
+c_pink = #FF00FF
+c_orange = #FF8000
+c_lblue = #00FF80
+c_mint = #0040FF
 c_fuschia = #AA00FF
 
 //
 //----------------------------------------[FUNCTIONS/VARIABLES/CONSTANTS]
 
-o=open
-h=high
-l=low
-c=close
+o = open
+h = high
+l = low
+c = close
 
 //
 //----------------------------------------[MOVING AVARAGES]
+ma1S = input.bool(title='', defval=true, inline='1', group='Moving Avarages')
+ma1  = input.int(title='', defval=9, inline='1', group='Moving Avarages')
+ma1T = input.string(title='', defval='EMA', options=['SMA', 'EMA', 'HMA', 'WMA'], inline='1', group='Moving Avarages')
+src1 = input.source(title='', defval=close, inline='1', group='Moving Avarages')
+// tf1  = input.timeframe(title='', defval='', inline='1', group='Moving Avarages')
 
-// res1 = input(title="Resolution", defval="", type=input.resolution, group="Moving Avarages")
-ma1S = input(title="", defval=true,  inline="1", group="Moving Avarages")
-ma1  = input(title="", defval=9,     inline="1", group="Moving Avarages")
-ma1T = input(title="", defval="EMA", options=["SMA","EMA","WMA"], inline="1", group="Moving Avarages")
-src1 = input(title="", defval=close, inline="1", group="Moving Avarages")
+ma2S = input.bool(title='', defval=true, inline='2', group='Moving Avarages')
+ma2  = input.int(title='', defval=55, inline='2', group='Moving Avarages')
+ma2T = input.string(title='', defval='SMA', options=['SMA', 'EMA', 'HMA', 'WMA'], inline='2', group='Moving Avarages')
+src2 = input.source(title='', defval=close, inline='2', group='Moving Avarages')
+// tf2  = input.timeframe(title='', defval='', inline='2', group='Moving Avarages')
 
-// res2 = input(title="Resolution", defval="", type=input.resolution, group="Moving Avarages")
-ma2S = input(title="", defval=true,  inline="2", group="Moving Avarages")
-ma2  = input(title="", defval=55,    inline="2", group="Moving Avarages")
-ma2T = input(title="", defval="SMA", options=["SMA","EMA","WMA"], inline="2", group="Moving Avarages")
-src2 = input(title="", defval=close, inline="2", group="Moving Avarages")
-
-// res3 = input(title="Resolution", defval="", type=input.resolution, group="Moving Avarages")
-ma3S = input(title="", defval=true,  inline="3", group="Moving Avarages")
-ma3  = input(title="", defval=233,   inline="3", group="Moving Avarages")
-ma3T = input(title="", defval="EMA", options=["SMA","EMA","WMA"], inline="3", group="Moving Avarages")
-src3 = input(title="", defval=close, inline="3", group="Moving Avarages")
+ma3S = input.bool(title='', defval=true, inline='3', group='Moving Avarages')
+ma3  = input.int(title='', defval=233, inline='3', group='Moving Avarages')
+ma3T = input.string(title='', defval='EMA', options=['SMA', 'EMA', 'HMA', 'WMA'], inline='3', group='Moving Avarages')
+src3 = input.source(title='', defval=close, inline='3', group='Moving Avarages')
+// tf3  = input.timeframe(title='', defval='', inline='3', group='Moving Avarages')
 
 //-----[ MA 1 ]
-plotType1 = ma1T == "EMA" ?
-  ema(src1,ma1) :
-  ma1T == "SMA" ?
-  sma(src1,ma1) :
-  ma1T == "WMA" ?
-  wma(src1,ma1) :
+plotType1 = ma1T == 'EMA' ? 
+  ta.ema(src1, ma1) : 
+  ma1T == 'SMA' ? 
+  ta.sma(src1, ma1) : 
+  ma1T == 'HMA' ? 
+  ta.hma(src1, ma1) : 
+  ma1T == 'WMA' ? 
+  ta.wma(src1, ma1) : 
   na
 
-showp1 = ma1S ? 
-  plotType1 :
-  na
+showp1 = ma1S ? plotType1 : na
 
-plot(showp1, color=color.new(c_mint,0), style=plot.style_line, linewidth=1)
-  
+plot(showp1, color=color.new(c_mint, 0), style=plot.style_line, linewidth=1)
+
 //-----[ MA 2 ]
-ma2G = sma(src2,ma2)>sma(src2[1],ma2)
-ma2R = sma(src2,ma2)<sma(src2[1],ma2)
-ma2Color = ma2G?c_green:ma2R?c_red:not ma2G and not ma2R?c_yellow:na
+ma2G = ta.sma(src2, ma2) > ta.sma(src2[1], ma2)
+ma2R = ta.sma(src2, ma2) < ta.sma(src2[1], ma2)
+ma2Color = ma2G ? c_green : ma2R ? c_red : not ma2G and not ma2R ? c_yellow : na
 
-plotType2 = ma2T == "SMA" ?
-  sma(src2,ma2) :
-  ma2T == "EMA" ?
-  ema(src2,ma2) :
-  ma2T == "WMA" ?
-  wma(src2,ma2) :
+plotType2 = ma2T == 'SMA' ? 
+  ta.sma(src2, ma2) : 
+  ma2T == 'EMA' ? 
+  ta.ema(src2, ma2) : 
+  ma2T == 'HMA' ? 
+  ta.hma(src2, ma2) : 
+  ma2T == 'WMA' ? 
+  ta.wma(src2, ma2) : 
   na
 
-showp2 = ma2S ? 
-  plotType2 :
-  na
+showp2 = ma2S ? plotType2 : na
 
-plot(showp2, color=color.new(ma2Color,0), style=plot.style_line, linewidth=1)
+plot(showp2, color=color.new(ma2Color, 0), style=plot.style_line, linewidth=1)
 
 //-----[ MA 3 ]
-ma3G = ema(src3,ma3)>ema(src3[1],ma3)
-ma3R = ema(src3,ma3)<ema(src3[1],ma3)
-ma3Color = ma3G?c_blue:ma3R?c_pink:not ma3G and not ma3R?c_yellow:na
+ma3G = ta.ema(src3, ma3) > ta.ema(src3[1], ma3)
+ma3R = ta.ema(src3, ma3) < ta.ema(src3[1], ma3)
+ma3Color = ma3G ? c_blue : ma3R ? c_pink : not ma3G and not ma3R ? c_yellow : na
 
-plotType3 = ma3T == "EMA" ?
-  ema(src3,ma3) :
-  ma3T == "SMA" ?
-  sma(src3,ma3) :
-  ma3T == "WMA" ?
-  wma(src3,ma3) :
+plotType3 = ma3T == 'EMA' ? 
+  ta.ema(src3, ma3) : 
+  ma3T == 'SMA' ? 
+  ta.sma(src3, ma3) : 
+  ma3T == 'HMA' ? 
+  ta.hma(src3, ma3) : 
+  ma3T == 'WMA' ? 
+  ta.wma(src3, ma3) : 
   na
 
-showp3 = ma3S ? 
-  plotType3 :
-  na
+showp3 = ma3S ? plotType3 : na
 
-plot(showp3, color=color.new(c_white,0), style=plot.style_line, linewidth=1)
+plot(showp3, color=color.new(c_white, 0), style=plot.style_line, linewidth=1)
 
 //
-  //----------------------------------------[...]
+//----------------------------------------[...]
